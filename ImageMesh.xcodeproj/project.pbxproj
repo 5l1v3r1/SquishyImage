@@ -18,10 +18,9 @@
 		FAB7D76916FC9040006FE4B7 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = FAB7D76816FC9040006FE4B7 /* Default.png */; };
 		FAB7D76B16FC9040006FE4B7 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FAB7D76A16FC9040006FE4B7 /* Default@2x.png */; };
 		FAB7D76D16FC9040006FE4B7 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FAB7D76C16FC9040006FE4B7 /* Default-568h@2x.png */; };
-		FAB7D76F16FC9040006FE4B7 /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = FAB7D76E16FC9040006FE4B7 /* Shader.fsh */; };
-		FAB7D77116FC9040006FE4B7 /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = FAB7D77016FC9040006FE4B7 /* Shader.vsh */; };
 		FAB7D77416FC9040006FE4B7 /* ANViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FAB7D77316FC9040006FE4B7 /* ANViewController.m */; };
 		FAB7D77716FC9040006FE4B7 /* ANViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = FAB7D77516FC9040006FE4B7 /* ANViewController.xib */; };
+		FAB7D77E16FC93B3006FE4B7 /* texture.png in Resources */ = {isa = PBXBuildFile; fileRef = FAB7D77D16FC93B3006FE4B7 /* texture.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,11 +39,10 @@
 		FAB7D76816FC9040006FE4B7 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		FAB7D76A16FC9040006FE4B7 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
 		FAB7D76C16FC9040006FE4B7 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
-		FAB7D76E16FC9040006FE4B7 /* Shader.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Shader.fsh; path = Shaders/Shader.fsh; sourceTree = "<group>"; };
-		FAB7D77016FC9040006FE4B7 /* Shader.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Shader.vsh; path = Shaders/Shader.vsh; sourceTree = "<group>"; };
 		FAB7D77216FC9040006FE4B7 /* ANViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ANViewController.h; sourceTree = "<group>"; };
 		FAB7D77316FC9040006FE4B7 /* ANViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ANViewController.m; sourceTree = "<group>"; };
 		FAB7D77616FC9040006FE4B7 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ANViewController.xib; sourceTree = "<group>"; };
+		FAB7D77D16FC93B3006FE4B7 /* texture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = texture.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,8 +95,6 @@
 			children = (
 				FAB7D76516FC9040006FE4B7 /* ANAppDelegate.h */,
 				FAB7D76616FC9040006FE4B7 /* ANAppDelegate.m */,
-				FAB7D76E16FC9040006FE4B7 /* Shader.fsh */,
-				FAB7D77016FC9040006FE4B7 /* Shader.vsh */,
 				FAB7D77216FC9040006FE4B7 /* ANViewController.h */,
 				FAB7D77316FC9040006FE4B7 /* ANViewController.m */,
 				FAB7D77516FC9040006FE4B7 /* ANViewController.xib */,
@@ -110,6 +106,7 @@
 		FAB7D75D16FC9040006FE4B7 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				FAB7D77D16FC93B3006FE4B7 /* texture.png */,
 				FAB7D75E16FC9040006FE4B7 /* ImageMesh-Info.plist */,
 				FAB7D75F16FC9040006FE4B7 /* InfoPlist.strings */,
 				FAB7D76216FC9040006FE4B7 /* main.m */,
@@ -177,9 +174,8 @@
 				FAB7D76916FC9040006FE4B7 /* Default.png in Resources */,
 				FAB7D76B16FC9040006FE4B7 /* Default@2x.png in Resources */,
 				FAB7D76D16FC9040006FE4B7 /* Default-568h@2x.png in Resources */,
-				FAB7D76F16FC9040006FE4B7 /* Shader.fsh in Resources */,
-				FAB7D77116FC9040006FE4B7 /* Shader.vsh in Resources */,
 				FAB7D77716FC9040006FE4B7 /* ANViewController.xib in Resources */,
+				FAB7D77E16FC93B3006FE4B7 /* texture.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

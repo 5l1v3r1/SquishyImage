@@ -8,115 +8,36 @@
 
 #import "ANViewController.h"
 
-#define BUFFER_OFFSET(i) ((char *)NULL + (i))
-
-// Uniform index.
-enum
-{
-    UNIFORM_MODELVIEWPROJECTION_MATRIX,
-    UNIFORM_NORMAL_MATRIX,
-    NUM_UNIFORMS
-};
-GLint uniforms[NUM_UNIFORMS];
-
-// Attribute index.
-enum
-{
-    ATTRIB_VERTEX,
-    ATTRIB_NORMAL,
-    NUM_ATTRIBUTES
-};
-
-GLfloat gCubeVertexData[216] = 
-{
-    // Data layout for each line below is:
-    // positionX, positionY, positionZ,     normalX, normalY, normalZ,
-    0.5f, -0.5f, -0.5f,        1.0f, 0.0f, 0.0f,
-    0.5f, 0.5f, -0.5f,         1.0f, 0.0f, 0.0f,
-    0.5f, -0.5f, 0.5f,         1.0f, 0.0f, 0.0f,
-    0.5f, -0.5f, 0.5f,         1.0f, 0.0f, 0.0f,
-    0.5f, 0.5f, -0.5f,          1.0f, 0.0f, 0.0f,
-    0.5f, 0.5f, 0.5f,         1.0f, 0.0f, 0.0f,
-    
-    0.5f, 0.5f, -0.5f,         0.0f, 1.0f, 0.0f,
-    -0.5f, 0.5f, -0.5f,        0.0f, 1.0f, 0.0f,
-    0.5f, 0.5f, 0.5f,          0.0f, 1.0f, 0.0f,
-    0.5f, 0.5f, 0.5f,          0.0f, 1.0f, 0.0f,
-    -0.5f, 0.5f, -0.5f,        0.0f, 1.0f, 0.0f,
-    -0.5f, 0.5f, 0.5f,         0.0f, 1.0f, 0.0f,
-    
-    -0.5f, 0.5f, -0.5f,        -1.0f, 0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,       -1.0f, 0.0f, 0.0f,
-    -0.5f, 0.5f, 0.5f,         -1.0f, 0.0f, 0.0f,
-    -0.5f, 0.5f, 0.5f,         -1.0f, 0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,       -1.0f, 0.0f, 0.0f,
-    -0.5f, -0.5f, 0.5f,        -1.0f, 0.0f, 0.0f,
-    
-    -0.5f, -0.5f, -0.5f,       0.0f, -1.0f, 0.0f,
-    0.5f, -0.5f, -0.5f,        0.0f, -1.0f, 0.0f,
-    -0.5f, -0.5f, 0.5f,        0.0f, -1.0f, 0.0f,
-    -0.5f, -0.5f, 0.5f,        0.0f, -1.0f, 0.0f,
-    0.5f, -0.5f, -0.5f,        0.0f, -1.0f, 0.0f,
-    0.5f, -0.5f, 0.5f,         0.0f, -1.0f, 0.0f,
-    
-    0.5f, 0.5f, 0.5f,          0.0f, 0.0f, 1.0f,
-    -0.5f, 0.5f, 0.5f,         0.0f, 0.0f, 1.0f,
-    0.5f, -0.5f, 0.5f,         0.0f, 0.0f, 1.0f,
-    0.5f, -0.5f, 0.5f,         0.0f, 0.0f, 1.0f,
-    -0.5f, 0.5f, 0.5f,         0.0f, 0.0f, 1.0f,
-    -0.5f, -0.5f, 0.5f,        0.0f, 0.0f, 1.0f,
-    
-    0.5f, -0.5f, -0.5f,        0.0f, 0.0f, -1.0f,
-    -0.5f, -0.5f, -0.5f,       0.0f, 0.0f, -1.0f,
-    0.5f, 0.5f, -0.5f,         0.0f, 0.0f, -1.0f,
-    0.5f, 0.5f, -0.5f,         0.0f, 0.0f, -1.0f,
-    -0.5f, -0.5f, -0.5f,       0.0f, 0.0f, -1.0f,
-    -0.5f, 0.5f, -0.5f,        0.0f, 0.0f, -1.0f
-};
-
-@interface ANViewController () {
-    GLuint _program;
-    
-    GLKMatrix4 _modelViewProjectionMatrix;
-    GLKMatrix3 _normalMatrix;
-    float _rotation;
-    
-    GLuint _vertexArray;
-    GLuint _vertexBuffer;
-}
-@property (strong, nonatomic) EAGLContext *context;
-@property (strong, nonatomic) GLKBaseEffect *effect;
-
-- (void)setupGL;
-- (void)tearDownGL;
-
-- (BOOL)loadShaders;
-- (BOOL)compileShader:(GLuint *)shader type:(GLenum)type file:(NSString *)file;
-- (BOOL)linkProgram:(GLuint)prog;
-- (BOOL)validateProgram:(GLuint)prog;
-@end
 
 @implementation ANViewController
 
+@synthesize context;
+@synthesize effect;
+
+static GLKVector2 _node_force(GLKVector2 nodePosition, GLKVector2 pullPosition, GLfloat steadyLength, GLfloat coeff);
+
 - (void)viewDidLoad
 {
+    windowWidth = [UIScreen mainScreen].bounds.size.width;
+    windowHeight = [UIScreen mainScreen].bounds.size.height;
+    
+    
     [super viewDidLoad];
     
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-
+    
     if (!self.context) {
         NSLog(@"Failed to create ES context");
     }
     
-    GLKView *view = (GLKView *)self.view;
+    GLKView * view = (GLKView *)self.view;
     view.context = self.context;
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
     
     [self setupGL];
 }
 
-- (void)dealloc
-{    
+- (void)dealloc {
     [self tearDownGL];
     
     if ([EAGLContext currentContext] == self.context) {
@@ -124,8 +45,7 @@ GLfloat gCubeVertexData[216] =
     }
 }
 
-- (void)didReceiveMemoryWarning
-{
+- (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
 
     if ([self isViewLoaded] && ([[self view] window] == nil)) {
@@ -142,250 +62,245 @@ GLfloat gCubeVertexData[216] =
     // Dispose of any resources that can be recreated.
 }
 
-- (void)setupGL
-{
+- (void)setupGL {
     [EAGLContext setCurrentContext:self.context];
     
-    [self loadShaders];
+    NSString * texturePath = [[NSBundle mainBundle] pathForResource:@"texture" ofType:@"png"];
+    imageTexture = [GLKTextureLoader textureWithContentsOfFile:texturePath
+                                                       options:nil
+                                                         error:nil];
+
     
     self.effect = [[GLKBaseEffect alloc] init];
-    self.effect.light0.enabled = GL_TRUE;
-    self.effect.light0.diffuseColor = GLKVector4Make(1.0f, 0.4f, 0.4f, 1.0f);
+    self.effect.texture2d0.envMode = GLKTextureEnvModeReplace;
+    self.effect.texture2d0.target = GLKTextureTarget2D;
+    self.effect.texture2d0.name = imageTexture.name;
+    GLfloat aspectRatio = windowHeight / windowWidth;
+    self.effect.transform.projectionMatrix = GLKMatrix4MakeOrtho(-1, 1, -aspectRatio, aspectRatio, 1, -1);
+
     
-    glEnable(GL_DEPTH_TEST);
+    // generate the vertex coordinates
+    GLfloat width = 2 / (GLfloat)kImageHorizontalVertices;
+    GLfloat height = 2 / (GLfloat)kImageVerticalVertices;
+    GLfloat xInitial = -1;
+    GLfloat yInitial = -1;
+    int triangleCount = kImageHorizontalVertices * kImageVerticalVertices * 2;
+    vertexData = (GLfloat *)malloc(triangleCount * 6 * sizeof(GLfloat));
+    textureCoords = (GLfloat *)malloc(triangleCount * 6 * sizeof(GLfloat));
+    vertexCount = triangleCount * 3;
     
-    glGenVertexArraysOES(1, &_vertexArray);
-    glBindVertexArrayOES(_vertexArray);
+    int vertexPositionsSize = sizeof(GLKVector2) * (kImageHorizontalVertices + 1) * (kImageVerticalVertices + 1);
+    vertexPositions = (GLKVector2 *)malloc(vertexPositionsSize);
+    vertexVelocities = (GLKVector2 *)malloc(vertexPositionsSize);
+    vertexBasePositions = (GLKVector2 *)malloc(vertexPositionsSize);
+    for (int y = 0; y <= kImageVerticalVertices; y++) {
+        for (int x = 0; x <= kImageHorizontalVertices; x++) {
+            int vertexIndex = x + (y * (kImageHorizontalVertices + 1));
+            vertexPositions[vertexIndex] = GLKVector2Make((GLfloat)x * width + xInitial,
+                                                          (GLfloat)y * height + yInitial);
+            vertexVelocities[vertexIndex] = GLKVector2Make(0, 0);
+        }
+    }
+    memcpy(vertexBasePositions, vertexPositions, vertexPositionsSize);
     
-    glGenBuffers(1, &_vertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(gCubeVertexData), gCubeVertexData, GL_STATIC_DRAW);
-    
-    glEnableVertexAttribArray(GLKVertexAttribPosition);
-    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 24, BUFFER_OFFSET(0));
-    glEnableVertexAttribArray(GLKVertexAttribNormal);
-    glVertexAttribPointer(GLKVertexAttribNormal, 3, GL_FLOAT, GL_FALSE, 24, BUFFER_OFFSET(12));
-    
-    glBindVertexArrayOES(0);
+    // generate texture coords
+    for (int y = 0; y < kImageVerticalVertices; y++) {
+        for (int x = 0; x < kImageHorizontalVertices; x++) {
+            int squareIndex = x + (y * kImageHorizontalVertices);
+            int vertexIndex = squareIndex * 12; // 12 GLfloats per square
+            GLfloat textureIndices[] = {
+                // triangle #1
+                1 - (GLfloat)x / (GLfloat)kImageHorizontalVertices,
+                1 - (GLfloat)y / (GLfloat)kImageVerticalVertices,
+                1 - (GLfloat)(x + 1) / (GLfloat)kImageHorizontalVertices,
+                1 - (GLfloat)y / (GLfloat)kImageVerticalVertices,
+                1 - (GLfloat)(x + 1) / (GLfloat)kImageHorizontalVertices,
+                1 - (GLfloat)(y + 1) / (GLfloat)kImageVerticalVertices,
+                // triangle #2
+                1 - (GLfloat)(x + 1) / (GLfloat)kImageHorizontalVertices,
+                1 - (GLfloat)(y + 1) / (GLfloat)kImageVerticalVertices,
+                1 - (GLfloat)x / (GLfloat)kImageHorizontalVertices,
+                1 - (GLfloat)(y + 1) / (GLfloat)kImageVerticalVertices,
+                1 - (GLfloat)x / (GLfloat)kImageHorizontalVertices,
+                1 - (GLfloat)y / (GLfloat)kImageVerticalVertices
+            };
+            memcpy(&textureCoords[vertexIndex], textureIndices, sizeof(GLfloat) * 12);
+        }
+    }
+    [self generateVertexData];
 }
 
-- (void)tearDownGL
-{
+- (void)tearDownGL {
     [EAGLContext setCurrentContext:self.context];
-    
-    glDeleteBuffers(1, &_vertexBuffer);
-    glDeleteVertexArraysOES(1, &_vertexArray);
-    
     self.effect = nil;
-    
-    if (_program) {
-        glDeleteProgram(_program);
-        _program = 0;
+}
+
+- (void)generateVertexData {
+    for (int y = 0; y < kImageVerticalVertices; y++) {
+        for (int x = 0; x < kImageHorizontalVertices; x++) {
+            int positionsIndex = x + (y * (kImageHorizontalVertices + 1));
+            int squareIndex = x + (y * kImageHorizontalVertices);
+            int vertexIndex = squareIndex * 12; // 12 GLfloats per square
+            GLKVector2 position = vertexPositions[positionsIndex];
+            GLKVector2 rightPosition = vertexPositions[positionsIndex + 1];
+            GLKVector2 downPosition = vertexPositions[positionsIndex + kImageHorizontalVertices + 1];
+            GLKVector2 downRight = vertexPositions[positionsIndex + kImageHorizontalVertices + 2];
+            GLfloat squareTriangles[] = {
+                // triangle #1
+                position.x,
+                position.y,
+                rightPosition.x,
+                rightPosition.y,
+                downRight.x,
+                downRight.y,
+                // trianlge #2
+                downRight.x,
+                downRight.y,
+                downPosition.x,
+                downPosition.y,
+                position.x,
+                position.y
+            };
+            memcpy(&vertexData[vertexIndex], squareTriangles, sizeof(GLfloat) * 12);
+        }
     }
+}
+
+- (void)applyCentralForces:(NSTimeInterval)delay {
+    GLfloat horSpacing = 2 / (GLfloat)kImageHorizontalVertices;
+    GLfloat verSpacing = 2 / (GLfloat)kImageVerticalVertices;
+    for (int y = 0; y < kImageVerticalVertices + 1; y++) {
+        for (int x = 0; x < kImageHorizontalVertices + 1; x++) {
+            int squareIndex = x + (y * (kImageHorizontalVertices + 1));
+            if (isDragging) {
+                if (touchingVertex == squareIndex) continue;
+            }
+            GLKVector2 position = vertexPositions[squareIndex];
+            GLKVector2 initialPosition = vertexBasePositions[squareIndex];
+            GLKVector2 velocity = vertexVelocities[squareIndex];
+            GLKVector2 force = _node_force(position, initialPosition, 0, 3);
+            // apply forces from surrounding nodes
+            for (int yTest = y - 1; yTest <= y+1; yTest++) {
+                if (yTest < 0 || yTest > kImageVerticalVertices) continue;
+                for (int xTest = x - 1; xTest <= x+1; xTest++) {
+                    if (xTest == x && yTest == y) continue;
+                    
+                    if (xTest < 0 || xTest > kImageHorizontalVertices) continue;
+                    GLfloat steadyForce = 0;
+                    if (yTest != y && xTest != x) {
+                        steadyForce = sqrtf(pow(verSpacing, 2) + pow(horSpacing, 2));
+                    } else if (yTest != y) {
+                        steadyForce = verSpacing;
+                    } else {
+                        steadyForce = horSpacing;
+                    }
+                    int nodeIndex = xTest + (yTest * (kImageHorizontalVertices + 1));
+                    force = GLKVector2Add(force, _node_force(position, vertexPositions[nodeIndex], steadyForce, 2));
+                }
+            }
+            velocity = GLKVector2Add(velocity, GLKVector2MultiplyScalar(force, delay));
+            GLKVector2 dragForce = GLKVector2MultiplyScalar(velocity, -1);
+            velocity = GLKVector2Add(velocity, GLKVector2MultiplyScalar(dragForce, delay));
+            position = GLKVector2Add(position, GLKVector2MultiplyScalar(velocity, delay));
+            vertexVelocities[squareIndex] = velocity;
+            vertexPositions[squareIndex] = position;
+        }
+    }
+    [self generateVertexData];
+}
+
+#pragma mark - Touches -
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    isDragging = YES;
+    GLKVector2 point = [self coordinateForPoint:[[touches anyObject] locationInView:self.view]];
+    
+    GLfloat currentDistance = 10;
+    touchLastPoint = point;
+    for (int y = 0; y <= kImageVerticalVertices; y++) {
+        for (int x = 0; x <= kImageHorizontalVertices; x++) {
+            int squareIndex = x + (y * (kImageHorizontalVertices + 1));
+            GLKVector2 vertexPosition = vertexPositions[squareIndex];
+            GLfloat distance = GLKVector2Distance(vertexPosition, point);
+            if (distance < currentDistance) {
+                currentDistance = distance;
+                touchingVertex = squareIndex;
+            }
+        }
+    }
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (!isDragging) return;
+    GLKVector2 point = [self coordinateForPoint:[[touches anyObject] locationInView:self.view]];
+    GLKVector2 offset = GLKVector2Subtract(point, touchLastPoint);
+    
+    GLfloat currentDistance = 10;
+    for (int y = 0; y <= kImageVerticalVertices; y++) {
+        for (int x = 0; x <= kImageHorizontalVertices; x++) {
+            int squareIndex = x + (y * (kImageHorizontalVertices + 1));
+            GLKVector2 vertexPosition = vertexBasePositions[squareIndex];
+            GLfloat distance = GLKVector2Distance(vertexPosition, point);
+            if (distance < currentDistance) {
+                currentDistance = distance;
+                touchingVertex = squareIndex;
+            }
+        }
+    }
+    
+    vertexPositions[touchingVertex] = GLKVector2Add(vertexPositions[touchingVertex],
+                                                    offset);
+    
+    touchLastPoint = point;
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    isDragging = NO;
+}
+
+- (GLKVector2)coordinateForPoint:(CGPoint)p {
+    GLKVector2 vector = GLKVector2Make(p.x - windowWidth / 2,
+                                       p.y - windowHeight / 2);
+    vector.x /= windowWidth / 2;
+    vector.y /= -windowWidth / 2;
+    return vector;
 }
 
 #pragma mark - GLKView and GLKViewController delegate methods
 
-- (void)update
-{
-    float aspect = fabsf(self.view.bounds.size.width / self.view.bounds.size.height);
-    GLKMatrix4 projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(65.0f), aspect, 0.1f, 100.0f);
+- (void)update {
     
-    self.effect.transform.projectionMatrix = projectionMatrix;
-    
-    GLKMatrix4 baseModelViewMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, -4.0f);
-    baseModelViewMatrix = GLKMatrix4Rotate(baseModelViewMatrix, _rotation, 0.0f, 1.0f, 0.0f);
-    
-    // Compute the model view matrix for the object rendered with GLKit
-    GLKMatrix4 modelViewMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, -1.5f);
-    modelViewMatrix = GLKMatrix4Rotate(modelViewMatrix, _rotation, 1.0f, 1.0f, 1.0f);
-    modelViewMatrix = GLKMatrix4Multiply(baseModelViewMatrix, modelViewMatrix);
-    
-    self.effect.transform.modelviewMatrix = modelViewMatrix;
-    
-    // Compute the model view matrix for the object rendered with ES2
-    modelViewMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, 1.5f);
-    modelViewMatrix = GLKMatrix4Rotate(modelViewMatrix, _rotation, 1.0f, 1.0f, 1.0f);
-    modelViewMatrix = GLKMatrix4Multiply(baseModelViewMatrix, modelViewMatrix);
-    
-    _normalMatrix = GLKMatrix3InvertAndTranspose(GLKMatrix4GetMatrix3(modelViewMatrix), NULL);
-    
-    _modelViewProjectionMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
-    
-    _rotation += self.timeSinceLastUpdate * 0.5f;
 }
 
-- (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
-{
+- (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
     glClearColor(0.65f, 0.65f, 0.65f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    glBindVertexArrayOES(_vertexArray);
+    NSDate * now = [NSDate date];
+    if (lastAnimation) {
+        NSTimeInterval interval = [now timeIntervalSinceDate:lastAnimation];
+        [self applyCentralForces:interval];
+    }
+    lastAnimation = now;
+
     
     // Render the object with GLKit
     [self.effect prepareToDraw];
     
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glEnableVertexAttribArray(GLKVertexAttribTexCoord0);
+    glVertexAttribPointer(GLKVertexAttribTexCoord0, 2, GL_FLOAT, GL_FALSE, 0, textureCoords);
     
-    // Render the object again with ES2
-    glUseProgram(_program);
-    
-    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, 0, _modelViewProjectionMatrix.m);
-    glUniformMatrix3fv(uniforms[UNIFORM_NORMAL_MATRIX], 1, 0, _normalMatrix.m);
-    
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-}
-
-#pragma mark -  OpenGL ES 2 shader compilation
-
-- (BOOL)loadShaders
-{
-    GLuint vertShader, fragShader;
-    NSString *vertShaderPathname, *fragShaderPathname;
-    
-    // Create shader program.
-    _program = glCreateProgram();
-    
-    // Create and compile vertex shader.
-    vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"Shader" ofType:@"vsh"];
-    if (![self compileShader:&vertShader type:GL_VERTEX_SHADER file:vertShaderPathname]) {
-        NSLog(@"Failed to compile vertex shader");
-        return NO;
-    }
-    
-    // Create and compile fragment shader.
-    fragShaderPathname = [[NSBundle mainBundle] pathForResource:@"Shader" ofType:@"fsh"];
-    if (![self compileShader:&fragShader type:GL_FRAGMENT_SHADER file:fragShaderPathname]) {
-        NSLog(@"Failed to compile fragment shader");
-        return NO;
-    }
-    
-    // Attach vertex shader to program.
-    glAttachShader(_program, vertShader);
-    
-    // Attach fragment shader to program.
-    glAttachShader(_program, fragShader);
-    
-    // Bind attribute locations.
-    // This needs to be done prior to linking.
-    glBindAttribLocation(_program, GLKVertexAttribPosition, "position");
-    glBindAttribLocation(_program, GLKVertexAttribNormal, "normal");
-    
-    // Link program.
-    if (![self linkProgram:_program]) {
-        NSLog(@"Failed to link program: %d", _program);
-        
-        if (vertShader) {
-            glDeleteShader(vertShader);
-            vertShader = 0;
-        }
-        if (fragShader) {
-            glDeleteShader(fragShader);
-            fragShader = 0;
-        }
-        if (_program) {
-            glDeleteProgram(_program);
-            _program = 0;
-        }
-        
-        return NO;
-    }
-    
-    // Get uniform locations.
-    uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX] = glGetUniformLocation(_program, "modelViewProjectionMatrix");
-    uniforms[UNIFORM_NORMAL_MATRIX] = glGetUniformLocation(_program, "normalMatrix");
-    
-    // Release vertex and fragment shaders.
-    if (vertShader) {
-        glDetachShader(_program, vertShader);
-        glDeleteShader(vertShader);
-    }
-    if (fragShader) {
-        glDetachShader(_program, fragShader);
-        glDeleteShader(fragShader);
-    }
-    
-    return YES;
-}
-
-- (BOOL)compileShader:(GLuint *)shader type:(GLenum)type file:(NSString *)file
-{
-    GLint status;
-    const GLchar *source;
-    
-    source = (GLchar *)[[NSString stringWithContentsOfFile:file encoding:NSUTF8StringEncoding error:nil] UTF8String];
-    if (!source) {
-        NSLog(@"Failed to load vertex shader");
-        return NO;
-    }
-    
-    *shader = glCreateShader(type);
-    glShaderSource(*shader, 1, &source, NULL);
-    glCompileShader(*shader);
-    
-#if defined(DEBUG)
-    GLint logLength;
-    glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0) {
-        GLchar *log = (GLchar *)malloc(logLength);
-        glGetShaderInfoLog(*shader, logLength, &logLength, log);
-        NSLog(@"Shader compile log:\n%s", log);
-        free(log);
-    }
-#endif
-    
-    glGetShaderiv(*shader, GL_COMPILE_STATUS, &status);
-    if (status == 0) {
-        glDeleteShader(*shader);
-        return NO;
-    }
-    
-    return YES;
-}
-
-- (BOOL)linkProgram:(GLuint)prog
-{
-    GLint status;
-    glLinkProgram(prog);
-    
-#if defined(DEBUG)
-    GLint logLength;
-    glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0) {
-        GLchar *log = (GLchar *)malloc(logLength);
-        glGetProgramInfoLog(prog, logLength, &logLength, log);
-        NSLog(@"Program link log:\n%s", log);
-        free(log);
-    }
-#endif
-    
-    glGetProgramiv(prog, GL_LINK_STATUS, &status);
-    if (status == 0) {
-        return NO;
-    }
-    
-    return YES;
-}
-
-- (BOOL)validateProgram:(GLuint)prog
-{
-    GLint logLength, status;
-    
-    glValidateProgram(prog);
-    glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0) {
-        GLchar *log = (GLchar *)malloc(logLength);
-        glGetProgramInfoLog(prog, logLength, &logLength, log);
-        NSLog(@"Program validate log:\n%s", log);
-        free(log);
-    }
-    
-    glGetProgramiv(prog, GL_VALIDATE_STATUS, &status);
-    if (status == 0) {
-        return NO;
-    }
-    
-    return YES;
+    glEnableVertexAttribArray(GLKVertexAttribPosition);
+    glVertexAttribPointer(GLKVertexAttribPosition, 2, GL_FLOAT, GL_FALSE, 0, vertexData);
+    glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+    glDisableVertexAttribArray(GLKVertexAttribPosition);
 }
 
 @end
+
+static GLKVector2 _node_force(GLKVector2 nodePosition, GLKVector2 pullPosition, GLfloat steadyLength, GLfloat coeff) {
+    GLKVector2 totalForce = GLKVector2Subtract(pullPosition, nodePosition);
+    if (GLKVector2Length(totalForce) == 0) return GLKVector2Make(0, 0);
+    GLKVector2 fixedForce = GLKVector2MultiplyScalar(totalForce, steadyLength / GLKVector2Length(totalForce));
+    return GLKVector2MultiplyScalar(GLKVector2Subtract(totalForce, fixedForce), coeff);
+}
